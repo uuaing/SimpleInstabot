@@ -99,3 +99,5 @@ ENV/
 
 # mypy
 .mypy_cache/
+instabot.db
+unfollow_whitelist.txt
