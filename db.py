@@ -9,14 +9,14 @@ class instabot_db:
     def __init__(self):
         self.cursor.execute("create table if not exists users(userid int, username varchar(200) , isfollowed chr(1) default '1', insert_time timestamp)")
 
-    def get_next_unfollower(self,ufollow_interval):
+    def get_next_unfollower(self, ufollow_interval):
         unfollow_time = time.time() - ufollow_interval
         user = self.cursor.execute("select  userid, username, insert_time from users where isfollowed = '1' and insert_time < %f order by insert_time limit 1" % unfollow_time)
         u = user.fetchone()
         if u is not None and len(u) > 0:
-            return u[0]
+            return u[0], u[1]
         else:
-            return 0
+            return 0, ''
 
     def is_followed(self, user_id):
         users = self.cursor.execute("select userid from users where userid = %s" % user_id)

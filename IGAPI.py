@@ -62,11 +62,14 @@ class IGAPI:
                 'username':self.username,
                 'password':self.password}
         r = self.s.get(self.url)
-        self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
-        time.sleep(5 * random.random())
-        if(self.send(self.url_login, params, True)):
-            self.s.headers.update({'X-CSRFToken': self.LastResponse.cookies['csrftoken']})
-            self.isLoggedIn = True
+        if r.status_code == 200:
+            print ("Login failed " + str(response.status_code))
+        else:
+            self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
+            time.sleep(5 * random.random())
+            if(self.send(self.url_login, params, True)):
+                self.s.headers.update({'X-CSRFToken': self.LastResponse.cookies['csrftoken']})
+                self.isLoggedIn = True
 
     def get_id_by_name(self, user_name):
         if self.send(self.url_user_detail % user_name):

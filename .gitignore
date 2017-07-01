@@ -1,6 +1,5 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
 *$py.class
 
 # C extensions
@@ -101,3 +100,4 @@ ENV/
 .mypy_cache/
 instabot.db
 unfollow_whitelist.txt
+example.py

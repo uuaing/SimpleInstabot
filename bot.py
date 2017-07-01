@@ -27,6 +27,7 @@ class bot():
     current_medias = []
 
     comments = []
+    unfollow_retry_times = 0
 
     def __init__(self
                  ,username
@@ -94,9 +95,7 @@ class bot():
                             liked = self.like(m['media_id'])
                             followed = self.follow(m['user_id'], m['user_name'])
                             commented = self.comment(m['media_id'], m['media_code'], self.login_user_id)
-                            #check white list
-                            if not any(u == m['user_name'] for u in self.unfollow_whitelist):
-                                self.unfollow()
+                            self.unfollow()
                             #any one of like, follow, comment performed, got to next media
                             if liked or followed or commented:
                                 del self.current_medias[0]
@@ -118,13 +117,21 @@ class bot():
 
     def unfollow(self):
         if self.is_next_ready('unfollow'):
-            user_id = self.db.get_next_unfollower(self.unfollow_interval)
+            user_id, user_name = self.db.get_next_unfollower(self.unfollow_interval)
+                     
             if user_id != 0:
-                if self.IG.unfollow(user_id):
-                    self.db.unfollow(user_id)
-                    self.prepare_next('unfollow')
-                    return True
-        return False
+                if not any(u == user_name for u in self.unfollow_whitelist):  
+                    if self.IG.unfollow(user_id):
+                        self.db.unfollow(user_id)
+                        self.prepare_next('unfollow')
+                    else:
+                        self.unfollow_retry_times += 1
+                        sleep(3)
+                        if self.unfollow_retry_times == 3:
+                            self.unfollow_retry_times = 0
+                            self.db.unfollow(user_id)                            
+                            self.logger('Retry failed, unfollow focelly. user: %s, username: %s' % (str(user_id), user_name))
+                                        
     
     def comment(self, media_id, media_code, user_id):
         if self.is_next_ready('comment') and self.IG.check_media_comment(media_code, user_id):
