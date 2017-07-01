@@ -89,6 +89,7 @@ class bot():
                             continue
 
                         while True:
+                            sleep(2)
                             m = self.current_medias[0]
                             liked = self.like(m['media_id'])
                             followed = self.follow(m['user_id'], m['user_name'])
@@ -99,7 +100,7 @@ class bot():
                             #any one of like, follow, comment performed, got to next media
                             if liked or followed or commented:
                                 del self.current_medias[0]
-                                break
+                                break                            
                     except:
                         traceback.print_exc()
                         del self.current_medias[0]
