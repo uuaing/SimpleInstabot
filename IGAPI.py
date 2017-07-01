@@ -62,8 +62,8 @@ class IGAPI:
                 'username':self.username,
                 'password':self.password}
         r = self.s.get(self.url)
-        if r.status_code == 200:
-            print ("Login failed " + str(response.status_code))
+        if r.status_code != 200:
+            print ("Login failed " + str(r.status_code))
         else:
             self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
             time.sleep(5 * random.random())
