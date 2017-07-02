@@ -132,7 +132,7 @@ class bot():
                     elif is_fo_you:
                         #if the use followed you, update database and find next unfollow
                         self.db.set_follows(user_id)
-                        self.logger('%s, %s is followed you, update db to set it as followed' % (str(user_id), user_name))
+                        self.logger('%s, %s is followed you, now set as followed' % (str(user_id), user_name))
                         return                
                  
                 if not any(u == user_name for u in self.unfollow_whitelist):  
@@ -153,6 +153,8 @@ class bot():
             if self.IG.comment(media_id, random.choice(self.comments)):
                 self.prepare_next('comment')
                 return True
+            else:
+                raise Exception('comment error for %s' % media_code)
         return False               
 
     def follow(self, user_id, user_name):
@@ -163,6 +165,8 @@ class bot():
                     self.db.follow(user_id, user_name)
                     self.prepare_next('follow')
                     return True
+                else:
+                    raise Exception('follow error for %s' % user_name)
         return False
 
     def like(self, media_id):
@@ -170,6 +174,8 @@ class bot():
             if self.IG.like(media_id):
                 self.prepare_next('like')
                 return True
+            else:
+                raise Exception('like error for %s' % media_id)
         return False
 
     def next_tag(self):
