@@ -147,11 +147,4 @@ class IGAPI:
             self.LastJson = json.loads(response.text)
             return True
         else:
-            print ("Request return " + str(response.status_code) + " error! %s" % endpoint)
-            try:
-                self.LastResponse = response
-                self.LastJson = json.loads(response.text)
-            except:
-                traceback.format_exc()
-                pass
-            return False
+            raise Exception("Request return " + str(response.status_code) + " error! %s" % endpoint)
