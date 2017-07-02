@@ -8,7 +8,8 @@ import os.path
 
 class bot():
     login_user_id = 0
-    unfollow_interval = 24 * 60 * 60
+    keep_days_for_not_followed_me = 2
+    keep_days_for_followed_me = 5
 
     likes_max_count = 50
     follower_max_count = 350
@@ -41,7 +42,8 @@ class bot():
                  ,unfollow_per_day = None
                  ,comments_per_day = None
                  ,proxy = ''
-                 ,unfollow_interval = 24 * 60 * 60
+                 ,keep_days_for_not_followed_me = 1
+                 ,keep_days_for_followed_me = 5
                  ):
         self.login_user_name = username
         self.tags = tags
@@ -51,7 +53,8 @@ class bot():
         self.like_per_day = like_per_day == None and self.follow_per_day * 0.7 or like_per_day
         self.unfollow_per_day = unfollow_per_day == None and self.follow_per_day or unfollow_per_day
         self.comments_per_day = comments_per_day == None and self.follow_per_day * 0.5 or comments_per_day
-        self.unfollow_interval = unfollow_interval
+        self.keep_days_for_followed_me = keep_days_for_followed_me
+        self.keep_days_for_not_followed_me = keep_days_for_not_followed_me
         self.comments = comments
 
         self.IG = IGAPI(username,password,proxy)
@@ -117,9 +120,21 @@ class bot():
 
     def unfollow(self):
         if self.is_next_ready('unfollow'):
-            user_id, user_name = self.db.get_next_unfollower(self.unfollow_interval)
-                     
-            if user_id != 0:
+            user_id, user_name, isfollow_by_me, isfollowed_me, insert_time = self.db.get_next_unfollower(self.keep_days_for_not_followed_me, self.keep_days_for_followed_me)
+            #check if this use followed me
+            if user_id !=0: 
+                if isfollowed_me == '0':
+                    #todo: get user detail return exception
+                    foer_count, fos_count, is_fo_you, is_fo = self.IG.get_user_detail(user_name)
+                    #set user as disable if there is error when finding a user
+                    if foer_count is None:
+                        self.db.set_disable(user_id)    
+                    elif is_fo_you:
+                        #if the use followed you, update database and find next unfollow
+                        self.db.set_follows(user_id)
+                        self.logger('%s, %s is followed you, update db to set it as followed' % (str(user_id), user_name))
+                        return                
+                 
                 if not any(u == user_name for u in self.unfollow_whitelist):  
                     if self.IG.unfollow(user_id):
                         self.db.unfollow(user_id)

@@ -122,6 +122,8 @@ class IGAPI:
             follow_viewer = user['follows_viewer']
             followed_by_viewer = user['followed_by_viewer']
             return follows, follower, follow_viewer, followed_by_viewer
+        else:
+            return None, None, None, None
 
     def get_username(self, media_code):
         self.send(self.url_media_detail % media_code)
