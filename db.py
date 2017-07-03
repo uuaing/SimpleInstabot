@@ -19,7 +19,7 @@ class instabot_db:
         if u is not None and len(u) > 0:
             return u[0], u[1], u[2], u[3], u[4]
         else:
-            return 0, '', '', '', '',0
+            return 0, '', '', '', 0
 
     def is_followed(self, user_id):
         users = self.cursor.execute("select userid from users where userid = %s" % user_id)

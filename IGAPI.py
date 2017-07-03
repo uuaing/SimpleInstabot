@@ -144,8 +144,15 @@ class IGAPI:
 
         if response.status_code == 200:
             self.LastResponse = response
-            self.LastJson = json.loads(response.text)
-            return True
+            try:
+              self.LastJson = json.loads(response.text)              
+              return True
+            except:
+              if response.text != None:
+                print('%s: response JSON parsing error: %s' % (endpoint, response.text))
+              else:
+                print('%s: response JSON parsing error.' % (endpoint))
+              return False            
         else:
             print ("Request return " + str(response.status_code) + " error! %s" % endpoint)
             try:
