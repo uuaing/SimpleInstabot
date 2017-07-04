@@ -29,6 +29,7 @@ class bot():
 
     comments = []
     unfollow_retry_times = 0
+    current_tag_index = -1
 
     def __init__(self
                  ,username
@@ -179,10 +180,11 @@ class bot():
         return False
 
     def next_tag(self):
-        self.current_tag_index = None or 0
         if self.current_tag_index == len(self.tags):
             self.current_tag_index = 0
-        return self.tags[self.current_tag_index + 1]
+        else:
+            self.current_tag_index += 1
+        return self.tags[self.current_tag_index]
 
     #remove duplicate medias which posted by same user
     def remove_duplicate_media(self, medias):        
@@ -213,12 +215,27 @@ class bot():
                     continue
                 m['user_name'] = user_name
                 foer_count, fos_count, is_fo_you, is_fo = self.IG.get_user_detail(user_name)
-                if (fos_count != 0 and foer_count/fos_count > 2) or foer_count > self.follower_max_count or is_fo_you:
-                    self.logger('  REMOVE >> %i, %i, %s, %s, %s' % (foer_count, fos_count, m['likes_count'], str(is_fo_you), str(is_fo)))
+                is_ignore = False
+                
+                if foer_count > self.follower_max_count:
+                    is_ignore = True
+
+                if foer_count * 0.9 > fos_count:
+                    is_ignore = True
+
+                if foer_count * 1.5 < fos_count:
+                    is_ignore = False
+
+                if is_fo_you:
+                    is_ignore = True
+
+
+                if is_ignore:
+                    self.logger('  REMOVE >> %s:%i, %i, %s, %s, %s' % (m['user_name'], foer_count, fos_count, m['likes_count'], str(is_fo_you), str(is_fo)))
                     del self.current_medias[0]
                     continue
                 else:
-                    self.logger('  KEEP   >> %i, %i, %s, %s, %s' % (foer_count, fos_count, m['likes_count'], str(is_fo_you), str(is_fo)))
+                    self.logger('  KEEP   >> %s:%i, %i, %s, %s, %s' % (m['user_name'], foer_count, fos_count, m['likes_count'], str(is_fo_you), str(is_fo)))
                     break   
             sleep(1)         
 
@@ -233,7 +250,7 @@ class bot():
         self.action_count[type] +=1
         self.action_iteration[type] = time() + self.action_interval[type]
         time_str = datetime.datetime.fromtimestamp(self.action_iteration[type]).strftime('%H:%M:%S')
-        self.logger('%s, #%i, next: %s' % (type.capitalize(), self.action_count[type], time_str)) 
+        self.logger('%s, #%i, %s next: %s' % (type.capitalize(), self.action_count[type], self.current_medias[0]['user_name'], time_str)) 
         self.sleep(2)
 
     def logger(self, log):

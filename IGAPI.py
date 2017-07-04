@@ -121,7 +121,7 @@ class IGAPI:
             follower = user['followed_by']['count']
             follow_viewer = user['follows_viewer']
             followed_by_viewer = user['followed_by_viewer']
-            return follows, follower, follow_viewer, followed_by_viewer
+            return int(follower), int(follows), follow_viewer, followed_by_viewer
         else:
             return None, None, None, None
 
