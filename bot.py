@@ -180,10 +180,9 @@ class bot():
         return False
 
     def next_tag(self):
+        self.current_tag_index += 1
         if self.current_tag_index == len(self.tags):
             self.current_tag_index = 0
-        else:
-            self.current_tag_index += 1
         return self.tags[self.current_tag_index]
 
     #remove duplicate medias which posted by same user
@@ -250,7 +249,10 @@ class bot():
         self.action_count[type] +=1
         self.action_iteration[type] = time() + self.action_interval[type]
         time_str = datetime.datetime.fromtimestamp(self.action_iteration[type]).strftime('%H:%M:%S')
-        self.logger('%s, #%i, %s next: %s' % (type.capitalize(), self.action_count[type], self.current_medias[0]['user_name'], time_str)) 
+        if type == 'unfollow':
+            self.logger('%s, #%i, %s next: %s' % (type.capitalize(), self.action_count[type], self.current_medias[0]['user_name'], time_str)) 
+        else:
+            self.logger('%s, #%i, next: %s' % (type.capitalize(), self.action_count[type], time_str)) 
         self.sleep(2)
 
     def logger(self, log):
