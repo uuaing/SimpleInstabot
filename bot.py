@@ -147,7 +147,8 @@ class bot():
                             self.unfollow_retry_times = 0
                             self.db.unfollow(user_id)                            
                             self.logger('Retry failed, unfollow focelly. user: %s, username: %s' % (str(user_id), user_name))
-                                        
+                 else:
+                      self.db.set_disable(user_id) 
     
     def comment(self, media_id, media_code, user_id):
         if self.is_next_ready('comment') and self.IG.check_media_comment(media_code, user_id):
@@ -249,7 +250,7 @@ class bot():
         self.action_count[type] +=1
         self.action_iteration[type] = time() + self.action_interval[type]
         time_str = datetime.datetime.fromtimestamp(self.action_iteration[type]).strftime('%H:%M:%S')
-        if type == 'unfollow':
+        if type != 'unfollow':
             self.logger('%s, #%i, %s next: %s' % (type.capitalize(), self.action_count[type], self.current_medias[0]['user_name'], time_str)) 
         else:
             self.logger('%s, #%i, next: %s' % (type.capitalize(), self.action_count[type], time_str)) 
