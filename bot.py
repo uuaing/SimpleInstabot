@@ -147,7 +147,7 @@ class bot():
                             self.unfollow_retry_times = 0
                             self.db.unfollow(user_id)                            
                             self.logger('Retry failed, unfollow focelly. user: %s, username: %s' % (str(user_id), user_name))
-                 else:
+                else:
                       self.db.set_disable(user_id) 
     
     def comment(self, media_id, media_code, user_id):
